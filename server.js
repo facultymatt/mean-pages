@@ -14,6 +14,7 @@ facultyApi.addResource({
 
 //Set up static folder
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/tests'));
 
 app.listen(3000, function() {
   console.log("Express server listening on port " + app.get('port'));
