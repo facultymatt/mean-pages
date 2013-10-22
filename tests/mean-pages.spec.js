@@ -1,396 +1,259 @@
-describe('Simple Form', function () {
+'use strict';
 
-  var $compile, $rootScope, parentScope, zipValidator,
-  $scope, html, element, f, ngFormCtrl;
 
-  beforeEach(module('simpleForm'));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_) {
-    $compile         = _$compile_;
-    $rootScope       = _$rootScope_;
+describe('MEANPages', function() {
+    var $httpBackend;
+    var $route, $location, $rootScope, $timeout, $templateCache, pageService, $compile;
+    var mainView;
+    var templateCustom, tempalteDefault;
 
-    // Simulate a controller scope that ng-model will inherit from
-    parentScope      = $rootScope.$new();
+    beforeEach(module('MEANPages'));
+    beforeEach(module('ngRoute'));
 
-    zipValidator     = function(zip) {
-      if(!zip) return true;
-      return /(^\d{5}$)|(^\d{5}-{0,1}\d{4}$)/.test(zip);
-    };
+    beforeEach(module(function() {
 
-    // Simulate a model on the parent scope
-    parentScope.user = {
-      name: '',
-      username: '',
-      email: '',
-      zip: '',
-      id: '',
-      termsOfService: false,
-      password: '',
-      passwordConfirmation: '',
-      validates: {
-        name:                 { presence: true },
-        username:             { presence: true, length: { in: _.range(1, 10) } },
-        email:                { presence: true, format: { email: true } },
-        zip:                  { presence: true, zip: { validates: zipValidator, message: "Must contain a valid zip code" } },
-        termsOfService:       { acceptance: true },
-        password:             { confirmation: true },
-        passwordConfirmation: { presence: true }
-      },
-      save: angular.noop,
-      find: angular.noop
-    };
+        templateCustom    = '<nav></nav>' +
+                            '<h3 area="heading"></h3>' +
+                            '<h4 area="teaser"></h4>';
 
-    // When a scope calls $new(), the child scope inherits prototypically
-    $scope           = parentScope.$new();
+        tempalteDefault   = '<nav></nav>' +
+                            '<h1 area="heading"></h1>' +
+                            '<div area="body1"></div>' +
+                            '<div area="body2"></div>' +
+                            '<div area="footer"></div>' +
+                            '<small area="copyright"></small>';
 
-    // Basic HTML use case
-    html             = '<form for="user">' +
-                          '<input ng-model="user.name">' +
-                          '<input ng-model="user.username">' +
-                          '<input ng-model="user.email">' +
-                          '<input ng-model="user.zip">' +
-                          '<input ng-model="user.termsOfService">' +
-                          '<input ng-model="user.password">' +
-                          '<input ng-model="user.passwordConfirmation">' +
-                       '</form>';
+        return function(_$httpBackend_) {
+            $httpBackend = _$httpBackend_;
+            $httpBackend.when('GET', 'views/page-custom.html').respond({data: templateCustom});
+            $httpBackend.when('GET', 'views/page-default.html').respond({data: tempalteDefault});
+        };
+    }));
 
-    // Compile the view and bind to the scope
-    element          = $compile(html)($scope);
+    beforeEach(module(function($routeProvider) {
+        $routeProvider
+            .when('/', {
+                redirectTo: '/page-1'
+            })
+            .when('/page-1', {})
+            .when('/page-2', {})
+            .when('/page-3', {
+                resolve: {
+                    "foo": function() {
+                        return "bar";
+                    }
+                }
+            })
+            .when('/404', {})
+            .otherwise({
+                redirectTo: '/404'
+            })
+    }));
 
-    ngFormCtrl       = element.controller('form');
-  }));
+    beforeEach(inject(function(_$route_, _$location_, _$rootScope_, _$timeout_, _$templateCache_, _pageService_) {
+        $route = _$route_;
+        $location = _$location_;
+        $rootScope = _$rootScope_;
+        $timeout = _$timeout_;
+        $templateCache = _$templateCache_;
+        pageService = _pageService_;
+    }));
 
-  describe('form creation and validation', function() {
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+        $compile = _$compile_;
+        $rootScope = _$rootScope_;
+        mainView = $compile('<div><ng:view></ng:view></div>')($rootScope);
+    }));
 
-    it('sets the form name to the name of the model + Form', function() {
-      expect(ngFormCtrl.$name).toEqual('userForm');
+
+    /**
+     * --------------------------------------------
+     * Private helper functions
+     * --------------------------------------------
+     *
+     */
+
+    function refresh() {
+        $rootScope.$digest();
+        $timeout.flush();
+        $httpBackend.flush();
+    }
+
+
+    /**
+     * --------------------------------------------
+     * Routes and resolves
+     * --------------------------------------------
+     *
+     */
+    describe('Handle resolves on routes', function() {
+        it('should add a resolve to all routes', function() {
+            expect(Object.prototype.toString.call($route.routes['/page-1'].resolve)).toEqual('[object Object]');
+            expect(Object.prototype.toString.call($route.routes['/page-2'].resolve)).toEqual('[object Object]');
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve)).toEqual('[object Object]');
+        });
+
+        it('should add resolve.page to all routes', function() {
+            expect(Object.prototype.toString.call($route.routes['/page-1'].resolve.page)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-2'].resolve.page)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve.page)).toEqual('[object Function]');
+        });
+
+        it('should add resolve.nav to all routes', function() {
+            expect(Object.prototype.toString.call($route.routes['/page-1'].resolve.nav)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-2'].resolve.nav)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve.nav)).toEqual('[object Function]');
+        });
+
+        it('should respect existing resolves on routes', function() {
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve.page)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve.nav)).toEqual('[object Function]');
+            expect(Object.prototype.toString.call($route.routes['/page-3'].resolve.foo)).toEqual('[object Function]');
+        });
+
+        it('should resolve page with page object from api', function() {});
+        it('should resolve nav with nav object from api', function() {});
+
     });
 
-    it('sets the input name to the ng-model by default', function() {
-      expect(ngFormCtrl.$fields['user.name'].$name).toEqual('user.name');
+
+    /**
+     * --------------------------------------------
+     * Template Caching and loading
+     * --------------------------------------------
+     *
+     */
+    describe('Template loading and caching', function() {
+
+        it('should defer loading template until page is loaded', function() {
+            $location.path('/page-1');
+            $rootScope.$digest();
+
+            // locals and locals.$template are created after
+            expect($route.current.locals && $route.current.locals.$template).not.toBeDefined();
+
+            // because we are using a timeout to simulate a delay from our api
+            // we need to flush it and clear out all the timeouts!
+            $timeout.flush();
+            $httpBackend.flush();
+
+            // templates are stored in locals (along with resolves) when loaded
+            expect($route.current.locals.$template).toEqual({ data : templateCustom});
+        });
+
+        it('should cache templates when loaded for first time', function() {
+
+            expect($templateCache.get('views/page-custom.html')).toBeUndefined();
+
+            $location.path('/page-1');
+
+            refresh();
+
+            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+
+        });
+
+        it('should load template from cache if cached version exists', function() {
+
+            expect($templateCache.get('views/page-custom.html')).toBeUndefined();
+            expect($templateCache.get('views/page-default.html')).toBeUndefined();
+
+            // page 1
+            $location.path('/page-1');
+
+            refresh();
+
+            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+
+            // navigate to a new page, causing a new template to be loaded
+            $location.path('/page-2');
+
+            refresh();
+
+            expect($templateCache.get('views/page-default.html')).toEqual({ data : tempalteDefault });
+
+            $location.path('/page-1');
+
+            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+
+        });
+
+        it('should load default template if no custom template is defined for page', function() {});
+
     });
 
-    it('overrides the $name property with the name attribute, if defined', function() {
-      html       =  '<form for="user">'+
-                      '<input name="username" ng-model="user.name">' +
-                    '</form>';
 
-    // Compile the view and bind to the scope
-      element    = $compile(html)($scope);
+    /**
+     * --------------------------------------------
+     * PageService
+     * --------------------------------------------
+     *
+     */
+    describe('PageService for storing and retrieving pages', function() {
 
-      ngFormCtrl = element.controller('form');
-      expect(ngFormCtrl.$fields['username'].$name).toEqual('username');
+        // this is less behavior driven and more executional? 
+        it('should have a set of api methods', function() {
+            expect(pageService.currentPage).toBeDefined();
+            expect(pageService.currentPage).toEqual(null);
+
+            expect(pageService.currentNav).toBeDefined();
+            expect(pageService.currentNav).toEqual(null);
+
+            expect(pageService.getNav).toBeDefined();
+            expect(pageService.get).toBeDefined();
+            expect(pageService.update).toBeDefined();
+            expect(pageService.add).toBeDefined();
+            expect(pageService.remove).toBeDefined();
+            expect(pageService.getBy).toBeDefined();
+            expect(pageService.updateArea).toBeDefined();
+        })
+
+        it('should save currentPage in page service', function() {
+
+            expect(pageService.currentPage).toEqual(null);
+
+            $location.path('/page-1');
+
+            refresh();
+
+            // we're not checking for all the object proerties, but just the slug
+            // should tell us if we successfully got a page
+            expect(pageService.currentPage.hasOwnProperty('slug')).toBe(true);
+
+        });
+
+        it('should save currentNav in page service', function() {
+
+            expect(pageService.currentNav).toEqual(null);
+
+            $location.path('/page-1');
+
+            refresh();
+
+            // we're not checking for all the object proerties, but just the slug
+            // should tell us if we successfully got a page
+            expect(pageService.currentNav.length).toBeGreaterThan(0);
+
+        });
+
+        it('should be nice', function() {
+
+            $location.path('/page-1');
+            refresh();
+            console.log(mainView.html());
+
+
+
+        })
+
     });
 
-    it('exposes its fields publicly on the fields array', function() {
-      expect(ngFormCtrl.$fields['user.name']).toBeDefined();
-      expect(ngFormCtrl.$fields['user.email']).toBeDefined();
-      expect(ngFormCtrl.$fields['user.phone']).toBeUndefined();
-    });
+    /**
+     * --------------------------------------------
+     *
+     * --------------------------------------------
+     *
+     */
 
-    it('features built-in validations', function() {
-      expect(ngFormCtrl.$fields['user.name'].$validates).toEqual({presence: true});
-      expect(ngFormCtrl.$fields['user.email'].$validates).toEqual({presence: true, format: { email: true } });
-    });
-
-    it('accepts custom validations', function() {
-      expect(element.html().match(/validates="presence,zip"/)).not.toBeNull();
-    });
-
-    it('parses true/false validation evaluations into $parser functions', function() {
-      ngFormCtrl.$fields['user.zip'].$setViewValue('11111-1111');
-      expect(ngFormCtrl.$fields['user.zip'].$valid).toEqual(true);
-
-      ngFormCtrl.$fields['user.zip'].$setViewValue('11111');
-      expect(ngFormCtrl.$fields['user.zip'].$valid).toEqual(true);
-
-      ngFormCtrl.$fields['user.zip'].$setViewValue('abcdefg');
-      expect(ngFormCtrl.$fields['user.zip'].$valid).toEqual(false);
-    });
-
-    it('adds the built-in css valid/invalid classes to inputs', function() {
-      ngFormCtrl.$fields['user.zip'].$setViewValue('11111-1111');
-      expect(element.html().match(/ng-valid-zip/)).not.toBeNull();
-      expect(element.html().match(/ng-invalid-zip/)).toBeNull();
-
-      ngFormCtrl.$fields['user.zip'].$setViewValue('abcdefg');
-      expect(element.html().match(/ng-valid-zip/)).toBeNull();
-      expect(element.html().match(/ng-invalid-zip/)).not.toBeNull();
-    });
-
-    it('validates the presence of a field', function() {
-      ngFormCtrl.$fields['user.name'].$setViewValue(null);
-      expect(ngFormCtrl.$fields['user.name'].$valid).toBe(false);
-    });
-
-    it('validates emails', function() {
-      ngFormCtrl.$fields['user.email'].$setViewValue('porky');
-      expect(ngFormCtrl.$fields['user.email'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.email'].$setViewValue('porky@pig.net');
-      expect(ngFormCtrl.$fields['user.email'].$valid).toBe(true);
-    });
-      
-    it('validates zip codes by default', function() {
-      parentScope.user = {
-        zip: '',
-        validates: {
-          zip:   { format: { zip: true } }
-        }
-      };
-
-      html             = '<form for="user">' +
-                            '<input ng-model="user.zip">' +
-                          '</form>';
-      element          = $compile(html)($scope);
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.zip'].$setViewValue('11111-1111');
-      expect(ngFormCtrl.$fields['user.zip'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.zip'].$setViewValue('not a zip');
-      expect(ngFormCtrl.$fields['user.zip'].$valid).toBe(false);
-    });
-
-    it('validates checkbox acceptance', function() {
-      ngFormCtrl.$fields['user.termsOfService'].$setViewValue(true);
-      expect(ngFormCtrl.$fields['user.termsOfService'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.termsOfService'].$setViewValue(false);
-      expect(ngFormCtrl.$fields['user.termsOfService'].$valid).toBe(false);
-    });
-
-    it('validates confirmation of matching fields', function() {
-      ngFormCtrl.$fields['user.password'].$setViewValue('myPassword');
-      expect(ngFormCtrl.$fields['user.password'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.passwordConfirmation'].$setViewValue('myPassword');
-      ngFormCtrl.$fields['user.password'].$setViewValue('myPassword');
-      expect(ngFormCtrl.$fields['user.password'].$valid).toBe(true);
-    });
-
-    it('validates custom formats', function() {
-      parentScope.user = {
-        orderNumber: '',
-        validates: {
-          orderNumber: { format: { regex: /\d{3}\w{2}\d{3}/ } }
-        }
-      };
-
-      html =  '<form for="user">' +
-                '<input ng-model="user.orderNumber">' +
-              '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-      ngFormCtrl.$fields['user.orderNumber'].$setViewValue('123ab456');
-      expect(ngFormCtrl.$fields['user.orderNumber'].$valid).toBe(true);
-    });
-
-    it('validates inclusion in a set of terms', function() {
-      parentScope.user = {
-        size: '',
-        validates: {
-          size: { inclusion: { in: ["small", "medium", "large"] } }
-        }
-      };
-
-      html =  '<form for="user">' +
-                '<input ng-model="user.size">' +
-              '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-      ngFormCtrl.$fields['user.size'].$setViewValue('small');
-      expect(ngFormCtrl.$fields['user.size'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.size'].$setViewValue('hefty');
-      expect(ngFormCtrl.$fields['user.size'].$valid).toBe(false);
-    });
-
-    it('validates exclusion in a set of terms', function() {
-      parentScope.user = {
-        size: '',
-        validates: {
-          size: { exclusion: { from: ["XL", "XXL", "XXL"] } }
-        }
-      };
-
-      html =  '<form for="user">' +
-                '<input ng-model="user.size">' +
-              '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-      ngFormCtrl.$fields['user.size'].$setViewValue('small');
-      expect(ngFormCtrl.$fields['user.size'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.size'].$setViewValue('XL');
-      expect(ngFormCtrl.$fields['user.size'].$valid).toBe(false);
-    });
-
-    it('validates length in', function() {
-      ngFormCtrl.$fields['user.username'].$setViewValue('abcdefghijk');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('username');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(true);
-    });
-
-    it('validates length min & max', function() {
-      parentScope.user = {
-        username: '',
-        validates: {
-          username: { presence: true, length: { min: 1, max: 10 } }
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.username">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.username'].$setViewValue(null);
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('a');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('abcdefghi');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('abcdefghijk');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-    });
-
-    it('validates length is', function() {
-      parentScope.user = {
-        username: '',
-        validates: {
-          username: { presence: true, length: { is: 6 } }
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.username">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('abc');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('abcdef');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(true);
-    });
-
-    it('validates numericality', function() {
-      parentScope.user = {
-        orderNumber: '',
-        validates: {
-          orderNumber: { presence: true, numericality: true }
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.orderNumber">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.orderNumber'].$setViewValue('abc');
-      expect(ngFormCtrl.$fields['user.orderNumber'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.orderNumber'].$setViewValue('1111');
-      expect(ngFormCtrl.$fields['user.orderNumber'].$valid).toBe(true);
-
-      ngFormCtrl.$fields['user.orderNumber'].$setViewValue('1.111');
-      expect(ngFormCtrl.$fields['user.orderNumber'].$valid).toBe(true);
-
-      parentScope.user = {
-        orderNumber: '',
-        validates: {
-          orderNumber: { presence: true, numericality: { ignore: /[\-\,]/g } }
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.orderNumber">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.orderNumber'].$setViewValue('1-111-00-11');
-      expect(ngFormCtrl.$fields['user.orderNumber'].$valid).toBe(true);
-    });
-
-    it('validates absence of a field', function() {
-      parentScope.user = {
-        badField: '',
-        validates: {
-          badField: { absence: true }
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.badField">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.badField'].$setViewValue('something');
-      expect(ngFormCtrl.$fields['user.badField'].$valid).toBe(false);
-    });
-
-    it('validates uniqueness of a field', function() {
-      parentScope.user = {
-        username: '',
-        validates: {
-          username: { uniqueness: true }
-        },
-        all: function() {
-          return [
-          {
-            username: 'brettcassette'
-          },
-          {
-            username: 'brettshollenberger'
-          }];
-        }
-      };
-
-      html             =  '<form for="user">' +
-                            '<input ng-model="user.username">' +
-                          '</form>';
-
-      element          = $compile(html)($scope);
-
-      ngFormCtrl       = element.controller('form');
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('brettcassette');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('brettshollenberger');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(false);
-
-      ngFormCtrl.$fields['user.username'].$setViewValue('androidgeoff');
-      expect(ngFormCtrl.$fields['user.username'].$valid).toBe(true);
-    });
-
-  });
-  
 });

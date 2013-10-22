@@ -1,5 +1,5 @@
 angular
-    .module('app', ['ngResource', 'ngRoute', 'ngSanitize', 'MEANPages'])
+    .module('app', ['ngResource', 'ngRoute', 'ngSanitize', 'MEANPages', 'angular-redactor'])
     .config(function ($routeProvider) {
         $routeProvider
             .when('/', {
@@ -45,7 +45,7 @@ angular
             // @note the slug can be in page/subpage format which we can just store 
             // in the database as such
             // or we can slide at / and get last item in array.
-            if (slug[0] === '/') {
+            if (slug && slug[0] === '/') {
                 slug = slug.slice(1, slug.length);
             }
 
@@ -92,7 +92,7 @@ angular
                 // return data right away if we have it
                 if (data) {
 
-                    templateDelay.resolve(data);
+                    //templateDelay.resolve(data);
 
                     // else do an http request to get it, caching the template too
                 } else {
@@ -302,7 +302,7 @@ angular
                 exports.currentNav = itemList;
                 delay.resolve(itemList);
 
-            }, 2000);
+            }, 1000);
 
             return delay.promise;
         };
@@ -355,7 +355,7 @@ angular
 
                 delay.resolve(theItem);
 
-            }, 2000);
+            }, 1000);
 
             return delay.promise;
 

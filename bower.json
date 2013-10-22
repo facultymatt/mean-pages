@@ -4,7 +4,7 @@
   "dependencies": {
     "angular": "1.2.0-rc.3",
     "angular-resource": "1.2.0-rc.3",
-    "angular-redactor": "latest",
+    "angular-redactor": "*",
     "angular-route": "1.2.0-rc.3",
     "angular-sanitize": "1.2.0-rc.3",
     "jquery": "latest",
