@@ -49,6 +49,9 @@ module.exports = function(grunt) {
         }
     });
 
+    // server with live reload
+    // @note server doesn't currently 
+    // restart express as it should. this has been disabled 
     grunt.registerTask('server', [
         'express:dev',
         'open:dev',
@@ -62,9 +65,6 @@ module.exports = function(grunt) {
 
     // autotest
     grunt.registerTask('autotest', [
-        'karma:unitAuto'
-    ]);
-    grunt.registerTask('autotest:unit', [
         'karma:unitAuto'
     ]);
 

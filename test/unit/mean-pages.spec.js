@@ -1,12 +1,13 @@
 'use strict';
 
-describe('MEANPages', function() {
+describe('ngPage', function() {
     var $httpBackend;
     var $route, $location, $rootScope, $timeout, $templateCache, ngPageMock, $compile, $sce, $parse;
     var mainView;
     var templateCustom, templateDefault;
 
-    beforeEach(module('MEANPages'));
+
+    beforeEach(module('ngPage'));
     beforeEach(module('ngRoute'));
 
     beforeEach(module(function() {
