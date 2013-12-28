@@ -2,6 +2,11 @@
  * Service that returns Mock data as promises to simulate a database call
  *
  */
+
+ // @note this mock can be a template for any adapter
+ // for example we could just replace all the mocks with resource calls
+ // or firebase calls. 
+ 
 angular
     .module('ngPage')
     .factory('ngPageMock', ['$http', '$q', '$timeout',

@@ -30,8 +30,8 @@ angular
                 scope: true,
                 compile: function compile(elem, attr) {
 
-                    var editTemplate = '<p ng-click="edit(false)">View</p><span text-angular ng-model="area.content"></span>';
-                    var viewTemplate = '<p ng-click="edit(true)">Edit</p><span ng-bind-html="area.content"></span>';
+                    var editTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-eye" ng-click="edit(false)"></i></a><span text-angular ng-model="area.content"></span></span>';
+                    var viewTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-pencil-square-o" ng-click="edit(true)"></i></a><span ng-bind-html="area.content"></span></span>';
 
                     return {
                         pre: function(scope, elem, attrs) {

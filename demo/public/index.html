@@ -20,15 +20,29 @@
 		<script src="./app.js"></script>
 
 		<style>
-			/*[area] {
-				border: 1px dashed #ccc;
-				padding: 20px;
-				margin-bottom: 10px;
-			}*/
 			.ta-editor.form-control {
 				height: auto;
 				padding: 0;
 			}
+
+			.ng-page-area .ng-page-edit-btn {
+			 	position: absolute;
+			 	bottom: 0;
+			 	opacity: 0;
+			}
+
+			.ng-page-area {
+				position: relative;
+			}
+
+			.ng-page-area:hover .ng-page-edit-btn {
+				opacity: 1;
+			}
+
+			[area]:hover {
+				border: 1px dashed #ccc;
+			}
+
 		</style>
 	</head>
 	<body>
