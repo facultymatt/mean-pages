@@ -2,7 +2,7 @@
 
 describe('MEANPages', function() {
     var $httpBackend;
-    var $route, $location, $rootScope, $timeout, $templateCache, pageService, $compile, $sce, $parse;
+    var $route, $location, $rootScope, $timeout, $templateCache, ngPageMock, $compile, $sce, $parse;
     var mainView;
     var templateCustom, templateDefault;
 
@@ -53,13 +53,13 @@ describe('MEANPages', function() {
             })
     }));
 
-    beforeEach(inject(function(_$route_, _$location_, _$rootScope_, _$timeout_, _$templateCache_, _pageService_) {
+    beforeEach(inject(function(_$route_, _$location_, _$rootScope_, _$timeout_, _$templateCache_, _ngPageMock_) {
         $route = _$route_;
         $location = _$location_;
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         $templateCache = _$templateCache_;
-        pageService = _pageService_;
+        ngPageMock = _ngPageMock_;
     }));
 
     beforeEach(inject(function(_$compile_, _$rootScope_) {
@@ -196,24 +196,24 @@ describe('MEANPages', function() {
 
         // this is less behavior driven and more executional? 
         it('should have a set of api methods', function() {
-            expect(pageService.currentPage).toBeDefined();
-            expect(pageService.currentPage).toEqual(null);
+            expect(ngPageMock.currentPage).toBeDefined();
+            expect(ngPageMock.currentPage).toEqual(null);
 
-            expect(pageService.currentNav).toBeDefined();
-            expect(pageService.currentNav).toEqual(null);
+            expect(ngPageMock.currentNav).toBeDefined();
+            expect(ngPageMock.currentNav).toEqual(null);
 
-            expect(pageService.getNav).toBeDefined();
-            expect(pageService.get).toBeDefined();
-            expect(pageService.update).toBeDefined();
-            expect(pageService.add).toBeDefined();
-            expect(pageService.remove).toBeDefined();
-            expect(pageService.getBy).toBeDefined();
-            expect(pageService.updateArea).toBeDefined();
+            expect(ngPageMock.getNav).toBeDefined();
+            expect(ngPageMock.get).toBeDefined();
+            expect(ngPageMock.update).toBeDefined();
+            expect(ngPageMock.add).toBeDefined();
+            expect(ngPageMock.remove).toBeDefined();
+            expect(ngPageMock.getBy).toBeDefined();
+            expect(ngPageMock.updateArea).toBeDefined();
         })
 
         it('should save currentPage in page service', function() {
 
-            expect(pageService.currentPage).toEqual(null);
+            expect(ngPageMock.currentPage).toEqual(null);
 
             $location.path('/page-1');
 
@@ -221,13 +221,13 @@ describe('MEANPages', function() {
 
             // we're not checking for all the object proerties, but just the slug
             // should tell us if we successfully got a page
-            expect(pageService.currentPage.hasOwnProperty('slug')).toBe(true);
+            expect(ngPageMock.currentPage.hasOwnProperty('slug')).toBe(true);
 
         });
 
         it('should save currentNav in page service', function() {
 
-            expect(pageService.currentNav).toEqual(null);
+            expect(ngPageMock.currentNav).toEqual(null);
 
             $location.path('/page-1');
 
@@ -235,7 +235,7 @@ describe('MEANPages', function() {
 
             // we're not checking for all the object proerties, but just the slug
             // should tell us if we successfully got a page
-            expect(pageService.currentNav.length).toBeGreaterThan(0);
+            expect(ngPageMock.currentNav.length).toBeGreaterThan(0);
 
         });
 

@@ -1,4 +1,4 @@
-# ngPages
+# ngPage
 
 ### This module brings the concept of pages with editable areas to AngularJS. This concept is inspired by the CMS [Apostrophe](http://demo2.apostrophenow.com/).
 
