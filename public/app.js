@@ -1,6 +1,6 @@
 angular
-    .module('app', ['ngResource', 'ngRoute', 'ngSanitize', 'MEANPages', 'angular-redactor'])
-    .config(function ($routeProvider) {
+    .module('app', ['ngResource', 'ngRoute', 'ngSanitize', 'MEANPages', 'textAngular'])
+    .config(function($routeProvider) {
         $routeProvider
             .when('/', {
                 redirectTo: '/page-1'
@@ -28,11 +28,11 @@ angular
  */
 angular
     .module('MEANPages', [])
-    .run(function ($rootScope, $route, $http, $templateCache, $location) {
+    .run(function($rootScope, $route, $http, $templateCache, $location) {
 
         // page resolve which gets page from database by slug
         // and then resolves template if page has a custom template defined
-        var page = function ($q, $timeout, $route, pageService) {
+        var page = function($q, $timeout, $route, pageService) {
 
             // create defers for page and template
             var delay = $q.defer();
@@ -54,7 +54,7 @@ angular
             //   a promise is the only way to defer template loading until after 
             //   our page load. We need to wait until then because a custom template
             //   might be defined in the page.
-            $route.current.template = function () {
+            $route.current.template = function() {
                 return templateDelay.promise;
             };
 
@@ -69,7 +69,7 @@ angular
             //   
             // @todo this is how we can access the page within our area directive
             //
-            var lookupPage = pageService.getBy('slug', slug).then(function (response) {
+            var lookupPage = pageService.getBy('slug', slug).then(function(response) {
 
                 // handle case of no page!
                 // not we could optionally allow this to load and just not have a
@@ -92,7 +92,7 @@ angular
                 // return data right away if we have it
                 if (data) {
 
-                    //templateDelay.resolve(data);
+                    templateDelay.resolve(data);
 
                     // else do an http request to get it, caching the template too
                 } else {
@@ -101,7 +101,7 @@ angular
                     $http.get(tPath, {
                         cache: true,
                         method: 'GET'
-                    }).then(function (html) {
+                    }).then(function(html) {
 
                         // cache the response and resolve promise
                         $templateCache.put(tPath, html.data);
@@ -123,7 +123,7 @@ angular
         }
 
         // function to add as resolve which will lookup the page
-        var nav = function ($q, $timeout, $route, pageService) {
+        var nav = function($q, $timeout, $route, pageService) {
 
             // create defer
             var delay = $q.defer();
@@ -131,7 +131,7 @@ angular
             // get page from API and cache within pageService
             // @todo this is how we can access the page within our area directive
             // @note we don't need to save this as lookupNav because its cached in the pageService
-            pageService.getNav().then(function (response) {
+            pageService.getNav().then(function(response) {
                 delay.resolve(response);
             });
 
@@ -142,7 +142,7 @@ angular
         }
 
         // add a resolve function to all routes
-        angular.forEach($route.routes, function (route) {
+        angular.forEach($route.routes, function(route) {
 
             // if a route doesn't have a current resolve, add a placeholder
             // resolve will be an object, not array
@@ -161,7 +161,7 @@ angular
  *
  */
 .directive('nav', ['pageService',
-    function (pageService) {
+    function(pageService) {
 
         var template = '<ul>' +
             '<li ng-repeat="page in pages">' +
@@ -173,7 +173,7 @@ angular
             restrict: 'AE',
             replace: true,
             template: template,
-            link: function (scope, element, attrs, ctrl) {
+            link: function(scope, element, attrs, ctrl) {
 
                 // creates a local ref to pages
                 // @note this works because the template compile is postponed
@@ -192,7 +192,7 @@ angular
  *
  */
 .directive('area', ['pageService', '$compile',
-    function (pageService, $compile) {
+    function(pageService, $compile) {
 
         // parses current page to return content area given a slug
         // if no content area is found, will create an empty content area 
@@ -214,18 +214,44 @@ angular
 
         return {
             restrict: 'AE',
+            replace: false,
             scope: true,
-            link: function (scope, element, attrs) {
+            compile: function compile(elem, attr) {
+
+                // allow content editing
+                //element.attr('contenteditable', true);
+               // elem.attr('text-angular', '');
+                //elem.attr('ng-model', 'content');
+
+                return {
+                    pre: function(scope, elem, attrs) {
+                        scope.area = getAreaContentFromSlug(attrs.area);
+                        //scope.content = scope.area.content;  
+                        //$compile(elem)(scope);
+                    },
+                    post: function postLink(scope, element, attr) {
+
+                        // element.on('blur keyup paste', function (event) {
+                        //     scope.area.content = element[0].innerHTML;
+                        //     pageService.updateArea(scope.area);
+                        // });
+                        scope.$watch('area.content', function(newValue) {
+                            console.log(newValue);
+                            pageService.updateArea(scope.area);
+                        });
+
+                    }
+                }
 
                 // we check attrs bind to prevent infinate loop
                 // @todo can we move this to compile? 
-                if (!attrs.ngBindHtml) {
-                    element.attr('ng-bind-html', 'content');
-                    $compile(element)(scope);
-                }
+                // if (!attrs.ngBindHtml) {
+                //     element.attr('ng-bind-html', 'content');
+                //     $compile(element)(scope);
+                // }
 
-                // allow content editing
-                element.attr('contenteditable', true);
+
+                //text-angular ng-model="heading" ta-toolbar="[['h1']]"
 
                 // rough watch for change within the element
                 // @note when we make this more robust, adding wysiwyg editor etc 
@@ -233,14 +259,14 @@ angular
                 //       for now we just watch for change events and update the service
                 //       on change
                 //
-                element.on('blur keyup paste', function (event) {
-                    scope.area.content = element[0].innerHTML;
-                    pageService.updateArea(scope.area);
-                });
+                // element.on('blur keyup paste', function (event) {
+                //     scope.area.content = element[0].innerHTML;
+                //     pageService.updateArea(scope.area);
+                // });
 
-                // set content within this scope
-                scope.area = getAreaContentFromSlug(attrs.area);
-                scope.content = scope.area.content;
+                // // set content within this scope
+                // scope.area = getAreaContentFromSlug(attrs.area);
+                // scope.content = scope.area.content;
 
             }
 
@@ -254,7 +280,7 @@ angular
  *
  */
 .factory('pageService', ['$http', '$q', '$timeout',
-    function ($http, $q, $timeout) {
+    function($http, $q, $timeout) {
         // dummy data
         var itemList = [{
             id: 1,
@@ -293,11 +319,11 @@ angular
         exports.currentPage = null;
         exports.currentNav = null;
 
-        exports.getNav = function () {
+        exports.getNav = function() {
 
             var delay = $q.defer();
 
-            $timeout(function () {
+            $timeout(function() {
 
                 exports.currentNav = itemList;
                 delay.resolve(itemList);
@@ -308,8 +334,8 @@ angular
         };
 
         // get one item by id
-        exports.get = function (id) {
-            var theItem = _.find(itemList, function (item) {
+        exports.get = function(id) {
+            var theItem = _.find(itemList, function(item) {
                 return item.id == id;
             });
             return theItem ? theItem : false;
@@ -317,8 +343,8 @@ angular
 
         // update one item by item 
         // @note we figure out id from item
-        exports.update = function (newItem) {
-            var theIndex = _.findIndex(itemList, function (item) {
+        exports.update = function(newItem) {
+            var theIndex = _.findIndex(itemList, function(item) {
                 return item.id == newItem.id;
             });
             theList = _.extend(itemList[theIndex], newItem);
@@ -326,27 +352,27 @@ angular
         };
 
         // add a new item
-        exports.add = function (item) {
+        exports.add = function(item) {
             item.id = itemList.length + 1;
             itemList.push(item);
             return item;
         };
 
         // remove item by item
-        exports.remove = function (item) {
+        exports.remove = function(item) {
             itemList.splice(itemList.indexOf(item), 1);
             return item;
         };
 
         // update one item by item 
         // @note we figure out id from item
-        exports.getBy = function (key, value) {
+        exports.getBy = function(key, value) {
 
             var delay = $q.defer();
 
-            $timeout(function () {
+            $timeout(function() {
 
-                var theItem = _.find(itemList, function (item) {
+                var theItem = _.find(itemList, function(item) {
                     return item[key] === value;
                 });
 
@@ -362,14 +388,14 @@ angular
         };
 
         // updates a specific area given
-        exports.updateArea = function (newArea) {
+        exports.updateArea = function(newArea) {
 
             // find index of current page
-            var theIndex = _.findIndex(itemList, function (item) {
+            var theIndex = _.findIndex(itemList, function(item) {
                 return item.id == exports.currentPage.id;
             });
 
-            var areaIndex = _.findIndex(itemList[theIndex].areas, function (area) {
+            var areaIndex = _.findIndex(itemList[theIndex].areas, function(area) {
                 return area.slug == newArea.slug;
             });
 
