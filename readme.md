@@ -61,4 +61,6 @@ Will generate the following html given that two pages, `page-1` and `page-2` are
 
 ## Development
 
-This module is still in heavy development and should not be used in production sites. No offical versioning
+NOTE This module is still in heavy development and should not be used in production sites. This module will not be versioned until a stable development version exists.
+
+NOTE That a backend mock exits for persisting changes per app session but not to a database. 
