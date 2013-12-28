@@ -12,4 +12,5 @@ angular
             .otherwise({
                 redirectTo: '/404'
             })
+
     });
