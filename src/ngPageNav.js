@@ -24,7 +24,6 @@ angular
                     // untill our PageService resolves. If using nav outside ng-view
                     // we'll need to build this out
                     scope.pages = ngPageMock.currentNav;
-                    console.log(scope.pages);
 
                 }
             }
