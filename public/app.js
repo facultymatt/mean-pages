@@ -170,7 +170,7 @@ angular
             '</ul>';
 
         return {
-            restrict: 'AE',
+            restrict: 'A',
             replace: true,
             template: template,
             link: function(scope, element, attrs, ctrl) {
