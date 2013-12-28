@@ -6,7 +6,6 @@ describe('ngPage', function() {
     var mainView;
     var templateCustom, templateDefault;
 
-
     beforeEach(module('ngPage'));
     beforeEach(module('ngRoute'));
 
@@ -16,16 +15,16 @@ describe('ngPage', function() {
 
             templateCustom =
                 '<nav></nav>' +
-                '<h3 ng:area="heading"></h3>' +
-                '<h4 ng:area="teaser"></h4>';
+                '<div  ng:area="heading"></div >' +
+                '<div  ng:area="teaser"></div >';
 
             templateDefault =
                 '<nav></nav>' +
-                '<h1 ng:area="heading"></h1>' +
+                '<div ng:area="heading"></div >' +
                 '<div ng:area="body1"></div>' +
                 '<div ng:area="body2"></div>' +
                 '<div ng:area="footer"></div>' +
-                '<small ng:area="copyright"></small>';
+                '<div  ng:area="copyright"></div >';
 
             $httpBackend = _$httpBackend_;
 
@@ -127,63 +126,73 @@ describe('ngPage', function() {
      * --------------------------------------------
      *
      */
-    describe('Template loading and caching', function() {
+    describe('Template loading', function() {
 
-        it('should defer loading template until page is loaded', function() {
-            $location.path('/page-1');
-            $rootScope.$digest();
+        describe('infers template from page data', function() {
 
-            // locals and locals.$template are created after
-            expect($route.current.locals && $route.current.locals.$template).not.toBeDefined();
+            beforeEach(function() {
+                $location.path('/page-1');
+                $rootScope.$digest();
+            })
 
-            // because we are using a timeout to simulate a delay from our api
-            // we need to flush it and clear out all the timeouts!
-            $timeout.flush();
-            $httpBackend.flush();
+            it('page is not yet loaded', function() {
+                expect($route.current.locals && $route.current.locals.page).not.toBeDefined();
+            });
 
-            // templates are stored in locals (along with resolves) when loaded
-            expect($route.current.locals.$template).toEqual(templateCustom);
-        });
+            it('template is not yet loaded', function() {
+                expect($route.current.locals && $route.current.locals.$template).not.toBeDefined();
+            });
 
-        it('should cache templates when loaded for first time', function() {
+            it('resolves page', function() {
+                $timeout.flush();
+                $httpBackend.flush();
+                expect($route.current.locals.page.id).toEqual(1);
+            });
 
-            expect($templateCache.get('views/page-custom.html')).toBeUndefined();
-
-            $location.path('/page-1');
-
-            refresh();
-
-            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
-
-        });
-
-        it('should load template from cache if cached version exists', function() {
-
-            expect($templateCache.get('views/page-custom.html')).toBeUndefined();
-            expect($templateCache.get('views/page-default.html')).toBeUndefined();
-
-            // page 1
-            $location.path('/page-1');
-
-            refresh();
-
-            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
-
-            // navigate to a new page, causing a new template to be loaded
-            $location.path('/page-2');
-
-            refresh();
-
-            expect($templateCache.get('views/page-default.html')).toEqual(templateDefault);
-
-            $location.path('/page-1');
-
-            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
+            it('resolves template', function() {
+                $timeout.flush();
+                $httpBackend.flush();
+                expect($route.current.locals.$template).toEqual(templateCustom);
+            });
 
         });
 
+    });
+
+    describe('Template caching', function() {
+
+        describe('initial caching', function() {
+
+            it('should start with an empty cache', function() {
+                expect($templateCache.get('views/page-custom.html')).toBeUndefined();
+                expect($templateCache.get('views/page-default.html')).toBeUndefined();
+            });
+        });
+
+        describe('caching as user navigates app', function() {
+
+            beforeEach(function() {
+                $location.path('/page-1');
+                refresh();
+            });
+
+            it('should cache templates when loaded for first time', function() {
+                expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
+            });
+
+            it('should load template from cache if cached version exists', function() {
+                // navigate to a new page, causing a new template to be loaded
+                $location.path('/page-2');
+                refresh();
+                $location.path('/page-1');
+                expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
+            });
+        });
+
+    });
+
+    describe('Default template', function() {
         it('should load default template if no custom template is defined for page', function() {});
-
     });
 
 
@@ -193,14 +202,12 @@ describe('ngPage', function() {
      * --------------------------------------------
      *
      */
-    describe('PageService for storing and retrieving pages', function() {
+    describe('pageMock for demos and simulating database persistence', function() {
 
         // this is less behavior driven and more executional? 
-        it('should have a set of api methods', function() {
-            expect(ngPageMock.currentPage).toBeDefined();
-            expect(ngPageMock.currentPage).toEqual(null);
+        it('should provide a set of api methods', function() {
 
-            expect(ngPageMock.currentNav).toBeDefined();
+            expect(ngPageMock.currentPage).toEqual(null);
             expect(ngPageMock.currentNav).toEqual(null);
 
             expect(ngPageMock.getNav).toBeDefined();
@@ -210,44 +217,36 @@ describe('ngPage', function() {
             expect(ngPageMock.remove).toBeDefined();
             expect(ngPageMock.getBy).toBeDefined();
             expect(ngPageMock.updateArea).toBeDefined();
-        })
-
-        it('should save currentPage in page service', function() {
-
-            expect(ngPageMock.currentPage).toEqual(null);
-
-            $location.path('/page-1');
-
-            refresh();
-
-            // we're not checking for all the object proerties, but just the slug
-            // should tell us if we successfully got a page
-            expect(ngPageMock.currentPage.hasOwnProperty('slug')).toBe(true);
 
         });
 
-        it('should save currentNav in page service', function() {
+        describe('store current page', function() {
 
-            expect(ngPageMock.currentNav).toEqual(null);
+            it('currentPage should default to null', function() {
+                expect(ngPageMock.currentPage).toBe(null);
+            });
 
-            $location.path('/page-1');
-
-            refresh();
-
-            // we're not checking for all the object proerties, but just the slug
-            // should tell us if we successfully got a page
-            expect(ngPageMock.currentNav.length).toBeGreaterThan(0);
+            it('should update current page on location change', function() {
+                $location.path('/page-1');
+                refresh();
+                expect(ngPageMock.currentPage.slug).toBe('page-1');
+            });
 
         });
 
-        it('should render a template', function() {
+        describe('store current nav ', function() {
 
-            $location.path('/page-1');
-            refresh();
-            console.log(mainView.html());
-            //expect(mainView.html()).toEqual(templateCustom);
+            it('currentNav defaults to null', function() {
+                expect(ngPageMock.currentNav).toEqual(null);
+            });
 
-        })
+            it('stores nav when nav is first retrieved', function() {
+                $location.path('/page-1');
+                refresh();
+                expect(ngPageMock.currentNav.length).toBeGreaterThan(0);
+            });
+
+        });
 
     });
 
@@ -257,11 +256,56 @@ describe('ngPage', function() {
      * --------------------------------------------
      *
      */
-     describe('Directive: area', function() {
+    describe('Directives', function() {
 
-        it('should replace element')
+        describe('area', function() {
 
-     });
+            describe('provides edit and view interface', function() {
 
+                it('defaults to view mode', function() {});
+
+                it('can enter edit mode by clicking on element', function() {});
+
+                it('can enter edit mode by clicking edit button', function() {});
+
+                describe('clicking save changes', function() {
+
+                    it('persists changes to database', function() {});
+
+                });
+
+                describe('clicking cancel', function() {
+
+                    it('discards changes to model', function() {});
+
+                });
+
+            });
+
+            describe('renders textAngular editor in edit mode', function() {
+
+                it('renders textAnguler editor', function() {});
+
+                it('sets custom toolbar', function() {});
+
+                it('parses custom toolbar syntax to work with textAngular', function() {});
+
+            });
+
+        });
+
+        describe('nav', function() {
+
+            describe('renders list of pages as navigation', function() {
+
+                it('shows all pages in list', function() {});
+
+                it('links to each page by slug', function() {});
+
+            });
+
+        });
+
+    });
 
 });
