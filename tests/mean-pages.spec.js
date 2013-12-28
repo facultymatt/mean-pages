@@ -1,33 +1,35 @@
 'use strict';
 
-
-
 describe('MEANPages', function() {
     var $httpBackend;
-    var $route, $location, $rootScope, $timeout, $templateCache, pageService, $compile;
+    var $route, $location, $rootScope, $timeout, $templateCache, pageService, $compile, $sce, $parse;
     var mainView;
-    var templateCustom, tempalteDefault;
+    var templateCustom, templateDefault;
 
     beforeEach(module('MEANPages'));
     beforeEach(module('ngRoute'));
 
     beforeEach(module(function() {
 
-        templateCustom    = '<nav></nav>' +
-                            '<h3 area="heading"></h3>' +
-                            '<h4 area="teaser"></h4>';
+        return function(_$httpBackend_, _$sce_, _$parse_, _$compile_) {
 
-        tempalteDefault   = '<nav></nav>' +
-                            '<h1 area="heading"></h1>' +
-                            '<div area="body1"></div>' +
-                            '<div area="body2"></div>' +
-                            '<div area="footer"></div>' +
-                            '<small area="copyright"></small>';
+            templateCustom =
+                '<nav></nav>' +
+                '<h3 ng:area="heading"></h3>' +
+                '<h4 ng:area="teaser"></h4>';
 
-        return function(_$httpBackend_) {
+            templateDefault =
+                '<nav></nav>' +
+                '<h1 ng:area="heading"></h1>' +
+                '<div ng:area="body1"></div>' +
+                '<div ng:area="body2"></div>' +
+                '<div ng:area="footer"></div>' +
+                '<small ng:area="copyright"></small>';
+
             $httpBackend = _$httpBackend_;
-            $httpBackend.when('GET', 'views/page-custom.html').respond({data: templateCustom});
-            $httpBackend.when('GET', 'views/page-default.html').respond({data: tempalteDefault});
+
+            $httpBackend.when('GET', 'views/page-custom.html').respond(templateCustom);
+            $httpBackend.when('GET', 'views/page-default.html').respond(templateDefault);
         };
     }));
 
@@ -139,7 +141,7 @@ describe('MEANPages', function() {
             $httpBackend.flush();
 
             // templates are stored in locals (along with resolves) when loaded
-            expect($route.current.locals.$template).toEqual({ data : templateCustom});
+            expect($route.current.locals.$template).toEqual(templateCustom);
         });
 
         it('should cache templates when loaded for first time', function() {
@@ -150,7 +152,7 @@ describe('MEANPages', function() {
 
             refresh();
 
-            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
 
         });
 
@@ -164,18 +166,18 @@ describe('MEANPages', function() {
 
             refresh();
 
-            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
 
             // navigate to a new page, causing a new template to be loaded
             $location.path('/page-2');
 
             refresh();
 
-            expect($templateCache.get('views/page-default.html')).toEqual({ data : tempalteDefault });
+            expect($templateCache.get('views/page-default.html')).toEqual(templateDefault);
 
             $location.path('/page-1');
 
-            expect($templateCache.get('views/page-custom.html')).toEqual({ data : templateCustom});
+            expect($templateCache.get('views/page-custom.html')).toEqual(templateCustom);
 
         });
 
@@ -237,13 +239,12 @@ describe('MEANPages', function() {
 
         });
 
-        it('should be nice', function() {
+        it('should render a template', function() {
 
             $location.path('/page-1');
             refresh();
             console.log(mainView.html());
-
-
+            //expect(mainView.html()).toEqual(templateCustom);
 
         })
 
@@ -255,5 +256,11 @@ describe('MEANPages', function() {
      * --------------------------------------------
      *
      */
+     describe('Directive: area', function() {
+
+        it('should replace element')
+
+     });
+
 
 });
