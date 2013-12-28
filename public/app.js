@@ -214,24 +214,21 @@ angular
 
         return {
             restrict: 'AE',
-            replace: true,
             scope: true,
             compile: function compile(elem, attr) {
 
-                // allow content editing
-                //element.attr('contenteditable', true);
-                // elem.attr('text-angular', '');
-                //elem.attr('ng-model', 'content');
+                var editTemplate = '<p ng-click="edit(false)">View</p><span text-angular ng-model="area.content"></span>';
+                var viewTemplate = '<p ng-click="edit(true)">Edit</p><span ng-bind-html="area.content"></span>';
 
                 return {
                     pre: function(scope, elem, attrs) {
                         scope.area = getAreaContentFromSlug(attrs.area);
-                        console.log(scope.area);
 
-                        var template = angular.element('<div text-angular ng-model="area.content"></div>');
+                        // generate template based on user auth
+                        //var template = angular.element('<span>matt</span>');
 
-                        console.log('template ', template);
-                        elem.append($compile(template)(scope));
+                        // add compiled template to our element
+                        //elem.replaceWith($compile(template)(scope));
                     },
                     post: function postLink(scope, element, attr) {
 
@@ -242,6 +239,14 @@ angular
                         scope.$watch('area.content', function(newValue) {
                             pageService.updateArea(scope.area);
                         });
+
+                        scope.edit = function(shouldEdit) {
+                            var template = shouldEdit ? editTemplate : viewTemplate;
+                            template = angular.element(template);
+                            element.empty().append($compile(template)(scope));
+                        };
+
+                        scope.edit(false);
 
                     }
                 }
@@ -291,7 +296,7 @@ angular
             template: 'views/page-custom.html',
             areas: [{
                 slug: 'heading',
-                content: 'This is a heading'
+                content: '<h1>This is a heading</h1>'
             }, {
                 slug: 'body1',
                 content: 'This is a body with some <strong>Strong HTML</strong> in it!'
@@ -331,7 +336,7 @@ angular
                 exports.currentNav = itemList;
                 delay.resolve(itemList);
 
-            }, 1000);
+            }, 200);
 
             return delay.promise;
         };
@@ -384,7 +389,7 @@ angular
 
                 delay.resolve(theItem);
 
-            }, 1000);
+            }, 200);
 
             return delay.promise;
 
