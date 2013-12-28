@@ -170,7 +170,7 @@ angular
             '</ul>';
 
         return {
-            restrict: 'A',
+            restrict: 'AE',
             replace: true,
             template: template,
             link: function(scope, element, attrs, ctrl) {
@@ -180,6 +180,7 @@ angular
                 // untill our PageService resolves. If using nav outside ng-view
                 // we'll need to build this out
                 scope.pages = pageService.currentNav;
+                console.log(scope.pages);
 
             }
         }
@@ -213,7 +214,7 @@ angular
         }
 
         return {
-            restrict: 'AE',
+            restrict: 'A',
             scope: true,
             compile: function compile(elem, attr) {
 
