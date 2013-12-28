@@ -214,20 +214,24 @@ angular
 
         return {
             restrict: 'AE',
-            replace: false,
+            replace: true,
             scope: true,
             compile: function compile(elem, attr) {
 
                 // allow content editing
                 //element.attr('contenteditable', true);
-               // elem.attr('text-angular', '');
+                // elem.attr('text-angular', '');
                 //elem.attr('ng-model', 'content');
 
                 return {
                     pre: function(scope, elem, attrs) {
                         scope.area = getAreaContentFromSlug(attrs.area);
-                        //scope.content = scope.area.content;  
-                        //$compile(elem)(scope);
+                        console.log(scope.area);
+
+                        var template = angular.element('<div text-angular ng-model="area.content"></div>');
+
+                        console.log('template ', template);
+                        elem.append($compile(template)(scope));
                     },
                     post: function postLink(scope, element, attr) {
 
@@ -236,7 +240,6 @@ angular
                         //     pageService.updateArea(scope.area);
                         // });
                         scope.$watch('area.content', function(newValue) {
-                            console.log(newValue);
                             pageService.updateArea(scope.area);
                         });
 
