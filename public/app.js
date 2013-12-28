@@ -240,12 +240,24 @@ angular
                             pageService.updateArea(scope.area);
                         });
 
+                        // function to set elements html
+                        // with and edit OR view template
+                        // based on shouldEdit boolean. 
                         scope.edit = function(shouldEdit) {
                             var template = shouldEdit ? editTemplate : viewTemplate;
                             template = angular.element(template);
                             element.empty().append($compile(template)(scope));
+                            
+                            // in addition if we are viewing bind to click 
+                            // on element
+                            if(!shouldEdit) {
+                                template.on('click', function() {
+                                    scope.edit(true); 
+                                })
+                            }
                         };
 
+                        // start initial state in view mode
                         scope.edit(false);
 
                     }
