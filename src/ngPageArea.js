@@ -24,6 +24,18 @@ angular
                     content: ''
                 };
             }
+            
+            function parseTools(tools) {
+                var parsed = tools
+                    .replace(/[^|]+/g, '[$&]') // wrap groups between | in []
+                    .replace(/[|]/g, ',') // change | to ,
+                    .replace(/[a-zA-Z0-9]+/g, '\'$&\'') // wrap tags in ''
+                    .replace(/\[.+\]/g, '[$&]') // wrap everything in []
+                    .replace(/\s/g, ''); // remove spaces
+
+                var valid = parsed.match(/,,\[,/g) ? false : true;
+                return valid ? parsed : '';
+            }
 
             return {
                 restrict: 'A',
@@ -42,33 +54,8 @@ angular
 
                             // add compiled template to our element
                             //elem.replaceWith($compile(template)(scope));
-                            var tools = null;
-
-                            String.prototype.trim = String.prototype.trim || function trim() {
-                                return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                            };
-
-                            if (attrs.tools) {
-
-                                var parsedTools = '[';
-                                tools = attrs.tools.split('|');
-                                angular.forEach(tools, function(item, i) {
-                                    parsedTools += '[';
-                                    var eachTool = item.split(',');
-                                    angular.forEach(eachTool, function(tool, idx) {
-                                        tool = tool.trim();
-                                        parsedTools += '\'' + tool + '\'';
-                                        if (idx < eachTool.length - 1) parsedTools += ',';
-                                    });
-                                    parsedTools += ']';
-                                    if (i < tools.length - 1) parsedTools += ',';
-                                });
-                                parsedTools += ']';
-                                tools = parsedTools;
-
-                            }
-
-                            scope.tools = tools;
+                            
+                            scope.tools = parseTools(attrs.tools);
 
                         },
                         post: function postLink(scope, element, attr) {

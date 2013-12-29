@@ -309,7 +309,7 @@ describe('ngPage', function() {
                     teaser1.click();
                     teaser2.click();
                     teaser3.click();
-                    //teaser4.click();
+                    teaser4.click();
                     $rootScope.$digest();
                     var tools1 = teaser1.find('[ta-toolbar]').attr('ta-toolbar');
                     var tools2 = teaser2.find('[ta-toolbar]').attr('ta-toolbar');
@@ -319,7 +319,7 @@ describe('ngPage', function() {
                     expect(tools1).toBe("[['h1','h2','h3'],['pre']]");
                     expect(tools2).toBe("[['h1','h2','h3'],['pre'],['ol','ul']]");
                     expect(tools3).toBe("[['h1']]");
-                    //expect(tools4).toBe("[['h1','h2','h3'],['pre']]");
+                    expect(tools4).toBe('');
                 });
 
                 it('parses custom toolbar syntax to work with textAngular', function() {});
