@@ -6,7 +6,10 @@
  // @note this mock can be a template for any adapter
  // for example we could just replace all the mocks with resource calls
  // or firebase calls. 
- 
+
+// @todo move mock to seperate mock file and keep this to functions
+
+
 angular
     .module('ngPage')
     .factory('ngPageMock', ['$http', '$q', '$timeout',
@@ -38,6 +41,23 @@ angular
                 }, {
                     slug: 'body2',
                     content: 'body 2 text goes here <h3>Matt</h3>'
+                }]
+            }, {
+                id: 3,
+                slug: 'page-3',
+                template: 'views/page-tools.html',
+                areas: [{
+                    slug: 'teaser1',
+                    content: 'stuff'
+                },{
+                    slug: 'teaser2',
+                    content: 'stuff'
+                },{
+                    slug: 'teaser3',
+                    content: 'stuff'
+                },{
+                    slug: 'teaser4',
+                    content: 'stuff'
                 }]
             }];
 

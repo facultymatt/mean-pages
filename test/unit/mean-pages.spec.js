@@ -1,10 +1,12 @@
 'use strict';
 
+// @todo move mock to the tests
+
 describe('ngPage', function() {
     var $httpBackend;
     var $route, $location, $rootScope, $timeout, $templateCache, ngPageMock, $compile, $sce, $parse;
     var mainView;
-    var templateCustom, templateDefault;
+    var templateCustom, templateDefault, templateTools;
 
     beforeEach(module('ngPage'));
     beforeEach(module('ngRoute'));
@@ -15,8 +17,8 @@ describe('ngPage', function() {
 
             templateCustom =
                 '<nav></nav>' +
-                '<div  ng:area="heading"></div >' +
-                '<div  ng:area="teaser"></div >';
+                '<div ng:area="heading"></div >' +
+                '<div ng:area="teaser"></div >';
 
             templateDefault =
                 '<nav></nav>' +
@@ -24,7 +26,7 @@ describe('ngPage', function() {
                 '<div ng:area="body1"></div>' +
                 '<div ng:area="body2"></div>' +
                 '<div ng:area="footer"></div>' +
-                '<div  ng:area="copyright"></div >';
+                '<div ng:area="copyright"></div >';
 
             $httpBackend = _$httpBackend_;
 
@@ -260,6 +262,17 @@ describe('ngPage', function() {
 
         describe('area', function() {
 
+            beforeEach(function() {
+                templateTools =
+                    '<nav></nav>' +
+                    '<div id="teaser1" area="teaser1" tools="h1, h2, h3 | pre"></div>' +
+                    '<div id="teaser2" area="teaser1" tools="h1, h2, h3 | pre | ol, ul"></div>' +
+                    '<div id="teaser3" area="teaser2" tools="h1"></div>' +
+                    '<div id="teaser4" area="teaser3" tools="h1||,"></div>';
+
+                $httpBackend.when('GET', 'views/page-tools.html').respond(templateTools);
+            });
+
             describe('provides edit and view interface', function() {
 
                 it('defaults to view mode', function() {});
@@ -286,7 +299,28 @@ describe('ngPage', function() {
 
                 it('renders textAnguler editor', function() {});
 
-                it('sets custom toolbar', function() {});
+                iit('sets custom toolbar', function() {
+                    $location.path('/page-3');
+                    refresh();
+                    var teaser1 = mainView.find('#teaser1');
+                    var teaser2 = mainView.find('#teaser2');
+                    var teaser3 = mainView.find('#teaser3');
+                    var teaser4 = mainView.find('#teaser4');
+                    teaser1.click();
+                    teaser2.click();
+                    teaser3.click();
+                    //teaser4.click();
+                    $rootScope.$digest();
+                    var tools1 = teaser1.find('[ta-toolbar]').attr('ta-toolbar');
+                    var tools2 = teaser2.find('[ta-toolbar]').attr('ta-toolbar');
+                    var tools3 = teaser3.find('[ta-toolbar]').attr('ta-toolbar');
+                    var tools4 = teaser4.find('[ta-toolbar]').attr('ta-toolbar');
+                    
+                    expect(tools1).toBe("[['h1','h2','h3'],['pre']]");
+                    expect(tools2).toBe("[['h1','h2','h3'],['pre'],['ol','ul']]");
+                    expect(tools3).toBe("[['h1']]");
+                    //expect(tools4).toBe("[['h1','h2','h3'],['pre']]");
+                });
 
                 it('parses custom toolbar syntax to work with textAngular', function() {});
 

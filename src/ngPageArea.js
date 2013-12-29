@@ -30,8 +30,8 @@ angular
                 scope: true,
                 compile: function compile(elem, attr) {
 
-                    var editTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-eye" ng-click="edit(false)"></i></a><span text-angular ng-model="area.content"></span></span>';
-                    var viewTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-pencil-square-o" ng-click="edit(true)"></i></a><span ng-bind-html="area.content"></span></span>';
+                    var editTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-eye" ng-click="edit(false)"></i></a><span text-angular ng-model="area.content" ta-toolbar="{{tools}}"></span></span>';
+                    var viewTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-pencil-square-o" ng-click="edit(true)"></i></a><span ng-bind-html="area.content" ta-toolbar="{{tools}}"></span></span>';
 
                     return {
                         pre: function(scope, elem, attrs) {
@@ -42,6 +42,34 @@ angular
 
                             // add compiled template to our element
                             //elem.replaceWith($compile(template)(scope));
+                            var tools = null;
+
+                            String.prototype.trim = String.prototype.trim || function trim() {
+                                return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                            };
+
+                            if (attrs.tools) {
+
+                                var parsedTools = '[';
+                                tools = attrs.tools.split('|');
+                                angular.forEach(tools, function(item, i) {
+                                    parsedTools += '[';
+                                    var eachTool = item.split(',');
+                                    angular.forEach(eachTool, function(tool, idx) {
+                                        tool = tool.trim();
+                                        parsedTools += '\'' + tool + '\'';
+                                        if (idx < eachTool.length - 1) parsedTools += ',';
+                                    });
+                                    parsedTools += ']';
+                                    if (i < tools.length - 1) parsedTools += ',';
+                                });
+                                parsedTools += ']';
+                                tools = parsedTools;
+
+                            }
+
+                            scope.tools = tools;
+
                         },
                         post: function postLink(scope, element, attr) {
 
