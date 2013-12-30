@@ -286,13 +286,13 @@ describe('ngPage', function() {
 
             describe('textAngular integration', function() {
 
-                ddescribe('parses custom toolbar from tools="" attr', function() {
+                describe('parses custom toolbar from tools="" attr', function() {
 
                     var actAndReturnExpectedTools = function() {
                         $location.path('/page-3');
                         refresh();
                         var teaser = mainView.find('#teaser');
-                        //teaser.find('a').click();
+                        teaser.find('a').click();
                         $rootScope.$digest();
                         return teaser.find('[ta-toolbar]').attr('ta-toolbar');
                     };
@@ -324,7 +324,7 @@ describe('ngPage', function() {
 
                     });
 
-                    iit('strips messy characters', function() {
+                    it('strips messy characters', function() {
 
                         templateTools = '<div id="teaser" area="teaser" tools="h1||,h2,"></div>';
                         $httpBackend.when('GET', 'views/page-tools.html').respond(templateTools);
