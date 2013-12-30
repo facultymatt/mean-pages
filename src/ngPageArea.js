@@ -24,32 +24,66 @@ angular
                     content: ''
                 };
             }
-            
+
+            // ------------------------------
+            // Parse tool string to remove invalid tools, characters, and 
+            // to match the textAngular format of array structure.
+            // While array structure makes sense for rendering the tools in code
+            // its not very user friendly for setting in development. 
+            // 
+            // this parsing function allows the dev to use a familiar syntax
+            // and then converts it to work with textAngular
+            // 
+            // @todo this could be a PR on textAngular itself
+            // this is needed because sending the wrong syntax will throw an 
+            // error. textAngular is very finicky when it comes to this. 
+            // ------------------------------
+            // 
+            // @param tools string Sting of tools to parse
+            // @return string Parsed string OR empty string '' if not valid
+            //
+
             function parseTools(tools) {
-                
-                var options = ['h1', 'h2', 'h3', 'p', 'pre', 'quote', 'bold', 'italics', 'undeline', 'ul', 'ol', 'redo', 'undo', 'clear', 'justifyLeft', 'justifyRight', 'justifyCenter', 'html', 'insertImage', 'insertLink', 'unlink'];
 
-                // \b(?!h1|h2|h3)\w+\b
+                // tools supported by textAngular
+                var options = ['h1', 'h2', 'h3', 'p', 'pre', 'quote',
+                    'bold', 'italics', 'undeline', 'ul', 'ol', 'redo',
+                    'undo', 'clear', 'justifyLeft', 'justifyRight',
+                    'justifyCenter', 'html', 'insertImage',
+                    'insertLink', 'unlink'
+                ];
 
-                var test = new RegExp('\\b(?!' + options.join('|') + '|,|\\|)\\w+\\b', 'g');
-                
-                tools = tools.replace(test, '');
+                // Regexp will match any tools NOT IN the options array
+                // also adds comma `,` and vertical line `|` to matcher
+                var invalidTools = new RegExp('\\b(?!' +
+                    options.join('|') +
+                    '|,|\\|)\\w+\\b', 'g');
 
+                // remove invalid tools
+                tools = tools.replace(invalidTools, '');
+
+                // clean up formatting issues that might be caused by removing
+                // invalid tools. Then, wrap in array structure for textAngular
                 var parsed = tools
-                    .replace(/,+/g, ',') // ensure single comma, ie: ,,,,,, becomes ,
-                    .replace(/\|,+/g, '') // remove |, @todo remove other invalid combos
-                    .replace(/\|+/g, '|') // ensure single |
-                    .replace(/(^[,|\|]+|[,|\|]+$)/g, '') // remove leading and trailing , |
-                    .replace(/[^|]+/g, '[$&]') // wrap groups between | in []
-                    .replace(/[|]/g, ',') // change | to ,
-                    .replace(/[a-zA-Z0-9]+/g, '\'$&\'') // wrap tags in ''
-                    .replace(/\[.+\]/g, '[$&]') // wrap everything in []
-                    .replace(/\s/g, ''); // remove spaces
-                    
-                console.log(parsed);
+                    .replace(/\|,+/g, '') // remove |,
+                .replace(/,\|+/g, '') // remove ,|
+                .replace(/\|+/g, '|') // ensure single |
+                .replace(/\s/g, '') // remove spaces
+                .replace(/(^[\s|,|\|]+|[\s|,|\|]+$)/g, '') // remove leading and trailing , |
+                .replace(/[^|]+/g, '[$&]') // wrap groups between | in []
+                .replace(/[|]/g, ',') // change | to ,
+                .replace(/[a-zA-Z0-9]+/g, '\'$&\'') // wrap tags in ''
+                .replace(/\[.+\]/g, '[$&]'); // wrap everything in []
 
-                var valid = parsed.match(/,,\[,/g) ? false : true;
-                return valid ? parsed : '';
+                // another test to make sure that at least 1 valid 
+                // tool exists. This is the same as above regex 
+                // but instead matches that ARE IN the array
+                test = new RegExp('\\b(' +
+                    options.join('|') +
+                    '|,|\\|)\\b', 'g');
+                var oneOrMoreValidTools = parsed.match(test) ? true : false;
+
+                return oneOrMoreValidTools ? parsed : '';
             }
 
             return {
@@ -69,7 +103,7 @@ angular
 
                             // add compiled template to our element
                             //elem.replaceWith($compile(template)(scope));
-                            
+
                             scope.tools = parseTools(attrs.tools);
 
                         },

@@ -37,6 +37,14 @@ This directive registers an area on a page. Areas should have unique names. Area
 <div area="body"></div>
 ```
 
+##### Custom toolbar
+You can define a custom toolbar set by providing the attr `tools=""`. For a list of valid tools see [textAngular Source](https://github.com/fraywing/textAngular/blob/master/textAngular.js#L32).
+
+```
+<div id="teaser" area="teaser" tools="h1, h2, h3 | pre | ol, ul"></div>
+```
+
+
 #### nav
 
 Nav will create a navigation list that links to each page. Currently its limited to getting all pages in the database. 
