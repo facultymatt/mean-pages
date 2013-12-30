@@ -26,12 +26,27 @@ angular
             }
             
             function parseTools(tools) {
+                
+                var options = ['h1', 'h2', 'h3', 'p', 'pre', 'quote', 'bold', 'italics', 'undeline', 'ul', 'ol', 'redo', 'undo', 'clear', 'justifyLeft', 'justifyRight', 'justifyCenter', 'html', 'insertImage', 'insertLink', 'unlink'];
+
+                // \b(?!h1|h2|h3)\w+\b
+
+                var test = new RegExp('\\b(?!' + options.join('|') + '|,|\\|)\\w+\\b', 'g');
+                
+                tools = tools.replace(test, '');
+
                 var parsed = tools
+                    .replace(/,+/g, ',') // ensure single comma, ie: ,,,,,, becomes ,
+                    .replace(/\|,+/g, '') // remove |, @todo remove other invalid combos
+                    .replace(/\|+/g, '|') // ensure single |
+                    .replace(/(^[,|\|]+|[,|\|]+$)/g, '') // remove leading and trailing , |
                     .replace(/[^|]+/g, '[$&]') // wrap groups between | in []
                     .replace(/[|]/g, ',') // change | to ,
                     .replace(/[a-zA-Z0-9]+/g, '\'$&\'') // wrap tags in ''
                     .replace(/\[.+\]/g, '[$&]') // wrap everything in []
                     .replace(/\s/g, ''); // remove spaces
+                    
+                console.log(parsed);
 
                 var valid = parsed.match(/,,\[,/g) ? false : true;
                 return valid ? parsed : '';

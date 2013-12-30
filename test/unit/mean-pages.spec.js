@@ -266,9 +266,10 @@ describe('ngPage', function() {
                 templateTools =
                     '<nav></nav>' +
                     '<div id="teaser1" area="teaser1" tools="h1, h2, h3 | pre"></div>' +
-                    '<div id="teaser2" area="teaser1" tools="h1, h2, h3 | pre | ol, ul"></div>' +
-                    '<div id="teaser3" area="teaser2" tools="h1"></div>' +
-                    '<div id="teaser4" area="teaser3" tools="h1||,"></div>';
+                    '<div id="teaser2" area="teaser2" tools="h1, h2, h3 | pre | ol, ul"></div>' +
+                    '<div id="teaser3" area="teaser3" tools="h1"></div>' +
+                    '<div id="teaser4" area="teaser4" tools="h1||,"></div>' + 
+                    '<div id="teaser5" area="teaser5" tools="apples|cats|dogs,matt|||,otters, h1|"></div>';
 
                 $httpBackend.when('GET', 'views/page-tools.html').respond(templateTools);
             });
@@ -306,20 +307,23 @@ describe('ngPage', function() {
                     var teaser2 = mainView.find('#teaser2');
                     var teaser3 = mainView.find('#teaser3');
                     var teaser4 = mainView.find('#teaser4');
+                    var teaser5 = mainView.find('#teaser5');
                     teaser1.click();
                     teaser2.click();
                     teaser3.click();
                     teaser4.click();
+                    teaser5.click();
                     $rootScope.$digest();
                     var tools1 = teaser1.find('[ta-toolbar]').attr('ta-toolbar');
                     var tools2 = teaser2.find('[ta-toolbar]').attr('ta-toolbar');
                     var tools3 = teaser3.find('[ta-toolbar]').attr('ta-toolbar');
                     var tools4 = teaser4.find('[ta-toolbar]').attr('ta-toolbar');
+                    var tools5 = teaser5.find('[ta-toolbar]').attr('ta-toolbar');
                     
                     expect(tools1).toBe("[['h1','h2','h3'],['pre']]");
                     expect(tools2).toBe("[['h1','h2','h3'],['pre'],['ol','ul']]");
                     expect(tools3).toBe("[['h1']]");
-                    expect(tools4).toBe('');
+                    expect(tools4).toBe("[['h1']]");
                 });
 
                 it('parses custom toolbar syntax to work with textAngular', function() {});
