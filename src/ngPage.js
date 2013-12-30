@@ -52,7 +52,7 @@ angular
             //   
             // @todo this is how we can access the page within our area directive
             //
-            var lookupPage = ngPageInterface.getBy('slug', slug).then(function(response) {
+            var lookupPage = ngPageInterface.getPageBySlug(slug).then(function(response) {
 
                 // handle case of no page!
                 // not we could optionally allow this to load and just not have a

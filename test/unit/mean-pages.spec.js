@@ -213,11 +213,10 @@ describe('ngPage', function() {
             expect(ngPageInterface.currentNav).toEqual(null);
 
             expect(ngPageInterface.getNav).toBeDefined();
-            expect(ngPageInterface.get).toBeDefined();
             expect(ngPageInterface.update).toBeDefined();
             expect(ngPageInterface.add).toBeDefined();
             expect(ngPageInterface.remove).toBeDefined();
-            expect(ngPageInterface.getBy).toBeDefined();
+            expect(ngPageInterface.getPageBySlug).toBeDefined();
             expect(ngPageInterface.updateArea).toBeDefined();
 
         });
