@@ -91,42 +91,46 @@ angular
                 scope: true,
                 compile: function compile(elem, attr) {
 
+                    // @todo move elsewhere! 
                     var editTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-eye" ng-click="edit(false)"></i></a><span text-angular ng-model="area.content" ta-toolbar="{{tools}}"></span></span>';
                     var viewTemplate = '<span class="ng-page-area"><a class="btn btn-default ng-page-edit-btn"><i class="fa fa-pencil-square-o" ng-click="edit(true)"></i></a><span ng-bind-html="area.content" ta-toolbar="{{tools}}"></span></span>';
 
                     return {
                         pre: function(scope, elem, attrs) {
+
+                            // get area from currentPage
+                            // if no area exists, we create a blank area
                             scope.area = getAreaContentFromSlug(attrs.area);
 
-                            // generate template based on user auth
-                            //var template = angular.element('<span>matt</span>');
-
-                            // add compiled template to our element
-                            //elem.replaceWith($compile(template)(scope));
-
+                            // check for custom toolbar 
                             scope.tools = parseTools(attrs.tools);
 
                         },
                         post: function postLink(scope, element, attr) {
 
-                            // element.on('blur keyup paste', function (event) {
-                            //     scope.area.content = element[0].innerHTML;
-                            //     ngPageMock.updateArea(scope.area);
-                            // });
+                            // watch content change and save right away
+                            // @todo decide if we want to require user to
+                            // click save.
+                            // @note this currently makes api call for every
+                            // single character user types. Resource heavy
                             scope.$watch('area.content', function(newValue) {
                                 ngPageMock.updateArea(scope.area);
                             });
 
                             // function to set elements html
-                            // with and edit OR view template
+                            // with edit OR view template
                             // based on shouldEdit boolean. 
                             scope.edit = function(shouldEdit) {
+
+                                // choose edit or view template
                                 var template = shouldEdit ? editTemplate : viewTemplate;
                                 template = angular.element(template);
+
+                                // compile and appended to element
                                 element.empty().append($compile(template)(scope));
 
-                                // in addition if we are viewing bind to click 
-                                // on element
+                                // if we are viewing bind to click 
+                                // on element which renders edit template 
                                 if (!shouldEdit) {
                                     template.on('click', function() {
                                         scope.edit(true);
@@ -138,36 +142,12 @@ angular
                             scope.edit(false);
 
                         }
+
                     }
-
-                    // we check attrs bind to prevent infinate loop
-                    // @todo can we move this to compile? 
-                    // if (!attrs.ngBindHtml) {
-                    //     element.attr('ng-bind-html', 'content');
-                    //     $compile(element)(scope);
-                    // }
-
-
-                    //text-angular ng-model="heading" ta-toolbar="[['h1']]"
-
-                    // rough watch for change within the element
-                    // @note when we make this more robust, adding wysiwyg editor etc 
-                    //       we'll get the new data in a much more robust way. 
-                    //       for now we just watch for change events and update the service
-                    //       on change
-                    //
-                    // element.on('blur keyup paste', function (event) {
-                    //     scope.area.content = element[0].innerHTML;
-                    //     ngPageMock.updateArea(scope.area);
-                    // });
-
-                    // // set content within this scope
-                    // scope.area = getAreaContentFromSlug(attrs.area);
-                    // scope.content = scope.area.content;
 
                 }
 
             }
 
         }
-    ])
+    ]);
