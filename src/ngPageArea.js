@@ -4,8 +4,8 @@
  */
 angular
     .module('ngPage')
-    .directive('area', ['ngPageMock', '$compile',
-        function(ngPageMock, $compile) {
+    .directive('area', ['ngPageInterface', '$compile',
+        function(ngPageInterface, $compile) {
 
             // parses current page to return content area given a slug
             // if no content area is found, will create an empty content area 
@@ -14,8 +14,8 @@ angular
             // in the database
             function getAreaContentFromSlug(slug) {
                 var area;
-                if (ngPageMock.currentPage && ngPageMock.currentPage.areas) {
-                    area = _.findWhere(ngPageMock.currentPage.areas, {
+                if (ngPageInterface.currentPage && ngPageInterface.currentPage.areas) {
+                    area = _.findWhere(ngPageInterface.currentPage.areas, {
                         "slug": slug
                     });
                 }
@@ -114,7 +114,7 @@ angular
                             // @note this currently makes api call for every
                             // single character user types. Resource heavy
                             scope.$watch('area.content', function(newValue) {
-                                ngPageMock.updateArea(scope.area);
+                                ngPageInterface.updateArea(ngPageInterface.currentPage.id, scope.area);
                             });
 
                             // function to set elements html

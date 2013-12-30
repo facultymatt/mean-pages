@@ -4,8 +4,8 @@
  */
 angular
     .module('ngPage')
-    .directive('nav', ['ngPageMock',
-        function(ngPageMock) {
+    .directive('nav', ['ngPageInterface',
+        function(ngPageInterface) {
 
             var template = '<ul>' +
                 '<li ng-repeat="page in pages">' +
@@ -23,7 +23,7 @@ angular
                     // @note this works because the template compile is postponed
                     // untill our PageService resolves. If using nav outside ng-view
                     // we'll need to build this out
-                    scope.pages = ngPageMock.currentNav;
+                    scope.pages = ngPageInterface.currentNav;
 
                 }
             }

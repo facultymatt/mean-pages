@@ -10,12 +10,12 @@
  *
  */
 angular
-    .module('ngPage', ['ngSanitize', 'textAngular'])
+    .module('ngPage', ['ngSanitize', 'textAngular', 'ngPageIntegrationsMock'])
     .run(function($rootScope, $route, $http, $templateCache, $location) {
 
         // page resolve which gets page from database by slug
         // and then resolves template if page has a custom template defined
-        var page = function($q, $timeout, $route, ngPageMock) {
+        var page = function($q, $timeout, $route, ngPageInterface) {
 
             // create defers for page and template
             var delay = $q.defer();
@@ -42,17 +42,17 @@ angular
             };
 
             // get page from API and cache
-            // cache within ngPageMock as ngPageMock.currentPage
+            // cache within ngPageInterface as ngPageInterface.currentPage
             // which makes it accessiable in our directives.
             // 
             // @note that we are not using resolve in the traditional sense where
             //   we then inject resolved data into the page controller. 
-            //   Instead we cache it within ngPageMock and this becomes
+            //   Instead we cache it within ngPageInterface and this becomes
             //   and easy way to access across the app.
             //   
             // @todo this is how we can access the page within our area directive
             //
-            var lookupPage = ngPageMock.getBy('slug', slug).then(function(response) {
+            var lookupPage = ngPageInterface.getBy('slug', slug).then(function(response) {
 
                 // handle case of no page!
                 // not we could optionally allow this to load and just not have a
@@ -106,15 +106,15 @@ angular
         }
 
         // function to add as resolve which will lookup the page
-        var nav = function($q, $timeout, $route, ngPageMock) {
+        var nav = function($q, $timeout, $route, ngPageInterface) {
 
             // create defer
             var delay = $q.defer();
 
-            // get page from API and cache within ngPageMock
+            // get page from API and cache within ngPageInterface
             // @todo this is how we can access the page within our area directive
-            // @note we don't need to save this as lookupNav because its cached in the ngPageMock
-            ngPageMock.getNav().then(function(response) {
+            // @note we don't need to save this as lookupNav because its cached in the ngPageInterface
+            ngPageInterface.getNav().then(function(response) {
                 delay.resolve(response);
             });
 

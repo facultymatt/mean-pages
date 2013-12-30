@@ -7,12 +7,25 @@
  // for example we could just replace all the mocks with resource calls
  // or firebase calls. 
 
-// @todo move mock to seperate mock file and keep this to functions
+// @todo move mock to separate mock file and keep this to functions
 
+
+/**
+ * --------------------------------------------
+ * Interface for saving and getting pages and navigation
+ * --------------------------------------------
+ *
+ * Users can define project specific integrations for different apis
+ * for example if using firebase or express node apps.
+ *
+ * The page module itself will always communicate to the 
+ * and the interface will then call the integrations
+ *
+ */
 
 angular
-    .module('ngPage')
-    .factory('ngPageMock', ['$http', '$q', '$timeout',
+    .module('ngPageIntegrationsMock', [])
+    .factory('ngPageIntegrationsMock', ['$http', '$q', '$timeout',
         function($http, $q, $timeout) {
             // dummy data
             var itemList = [{
@@ -65,17 +78,12 @@ angular
             // create and expose service methods
             var exports = {};
 
-            // cache items to access in our page directives
-            exports.currentPage = null;
-            exports.currentNav = null;
-
             exports.getNav = function() {
 
                 var delay = $q.defer();
 
                 $timeout(function() {
 
-                    exports.currentNav = itemList;
                     delay.resolve(itemList);
 
                 }, 200);
@@ -126,9 +134,6 @@ angular
                         return item[key] === value;
                     });
 
-                    // cache current page
-                    exports.currentPage = theItem;
-
                     delay.resolve(theItem);
 
                 }, 200);
@@ -138,11 +143,11 @@ angular
             };
 
             // updates a specific area given
-            exports.updateArea = function(newArea) {
+            exports.updateArea = function(currentPageId, newArea) {
 
                 // find index of current page
                 var theIndex = _.findIndex(itemList, function(item) {
-                    return item.id == exports.currentPage.id;
+                    return item.id == currentPageId;
                 });
 
                 var areaIndex = _.findIndex(itemList[theIndex].areas, function(area) {

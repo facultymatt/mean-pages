@@ -4,7 +4,7 @@
 
 describe('ngPage', function() {
     var $httpBackend;
-    var $route, $location, $rootScope, $timeout, $templateCache, ngPageMock, $compile, $sce, $parse;
+    var $route, $location, $rootScope, $timeout, $templateCache, ngPageInterface, $compile, $sce, $parse;
     var mainView;
     var templateCustom, templateDefault, templateTools;
 
@@ -55,13 +55,13 @@ describe('ngPage', function() {
             })
     }));
 
-    beforeEach(inject(function(_$route_, _$location_, _$rootScope_, _$timeout_, _$templateCache_, _ngPageMock_) {
+    beforeEach(inject(function(_$route_, _$location_, _$rootScope_, _$timeout_, _$templateCache_, _ngPageInterface_) {
         $route = _$route_;
         $location = _$location_;
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         $templateCache = _$templateCache_;
-        ngPageMock = _ngPageMock_;
+        ngPageInterface = _ngPageInterface_;
     }));
 
     beforeEach(inject(function(_$compile_, _$rootScope_) {
@@ -209,29 +209,29 @@ describe('ngPage', function() {
         // this is less behavior driven and more executional? 
         it('should provide a set of api methods', function() {
 
-            expect(ngPageMock.currentPage).toEqual(null);
-            expect(ngPageMock.currentNav).toEqual(null);
+            expect(ngPageInterface.currentPage).toEqual(null);
+            expect(ngPageInterface.currentNav).toEqual(null);
 
-            expect(ngPageMock.getNav).toBeDefined();
-            expect(ngPageMock.get).toBeDefined();
-            expect(ngPageMock.update).toBeDefined();
-            expect(ngPageMock.add).toBeDefined();
-            expect(ngPageMock.remove).toBeDefined();
-            expect(ngPageMock.getBy).toBeDefined();
-            expect(ngPageMock.updateArea).toBeDefined();
+            expect(ngPageInterface.getNav).toBeDefined();
+            expect(ngPageInterface.get).toBeDefined();
+            expect(ngPageInterface.update).toBeDefined();
+            expect(ngPageInterface.add).toBeDefined();
+            expect(ngPageInterface.remove).toBeDefined();
+            expect(ngPageInterface.getBy).toBeDefined();
+            expect(ngPageInterface.updateArea).toBeDefined();
 
         });
 
         describe('store current page', function() {
 
             it('currentPage should default to null', function() {
-                expect(ngPageMock.currentPage).toBe(null);
+                expect(ngPageInterface.currentPage).toBe(null);
             });
 
             it('should update current page on location change', function() {
                 $location.path('/page-1');
                 refresh();
-                expect(ngPageMock.currentPage.slug).toBe('page-1');
+                expect(ngPageInterface.currentPage.slug).toBe('page-1');
             });
 
         });
@@ -239,13 +239,13 @@ describe('ngPage', function() {
         describe('store current nav ', function() {
 
             it('currentNav defaults to null', function() {
-                expect(ngPageMock.currentNav).toEqual(null);
+                expect(ngPageInterface.currentNav).toEqual(null);
             });
 
             it('stores nav when nav is first retrieved', function() {
                 $location.path('/page-1');
                 refresh();
-                expect(ngPageMock.currentNav.length).toBeGreaterThan(0);
+                expect(ngPageInterface.currentNav.length).toBeGreaterThan(0);
             });
 
         });
