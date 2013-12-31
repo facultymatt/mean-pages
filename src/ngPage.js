@@ -10,7 +10,7 @@
  *
  */
 angular
-    .module('ngPage', ['ngSanitize', 'textAngular', 'ngPageIntegrationsMock'])
+    .module('ngPage', ['ngSanitize', 'textAngular', 'ngPageIntegrationsExpressApi'])
     .run(function($rootScope, $route, $http, $templateCache, $location) {
 
         // page resolve which gets page from database by slug

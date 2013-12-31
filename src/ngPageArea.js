@@ -60,7 +60,7 @@ angular
                     '|,|\\|)\\w+\\b', 'g');
 
                 // remove invalid tools
-                tools = tools.replace(invalidTools, '');
+                tools = (tools || '').replace(invalidTools, '');
 
                 // clean up formatting issues that might be caused by removing
                 // invalid tools. Then, wrap in array structure for textAngular
@@ -113,8 +113,9 @@ angular
                             // click save.
                             // @note this currently makes api call for every
                             // single character user types. Resource heavy
+                            var hasChanges = false;
                             scope.$watch('area.content', function(newValue) {
-                                ngPageInterface.updateArea(ngPageInterface.currentPage.id, scope.area);
+                                hasChanges = true;
                             });
 
                             // function to set elements html
@@ -134,7 +135,11 @@ angular
                                 if (!shouldEdit) {
                                     template.on('click', function() {
                                         scope.edit(true);
-                                    })
+                                    });
+
+                                    if(hasChanges) {
+                                        ngPageInterface.updateArea(ngPageInterface.currentPage, scope.area);
+                                    }
                                 }
                             };
 

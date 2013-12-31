@@ -68,7 +68,7 @@
 
 angular
     .module('ngPage')
-    .factory('ngPageInterface', ['ngPageIntegrationsMock',
+    .factory('ngPageInterface', ['ngPageIntegrationsExpressApi',
         function(integration) {
 
             // create and expose interface methods
